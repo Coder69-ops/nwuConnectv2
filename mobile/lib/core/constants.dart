@@ -1,6 +1,6 @@
 
 class Constants {
-  static const String baseUrl = 'https://api.nwuconnect.aixplore.me';
+  static const String baseUrl = 'https://api.nwuconnect.aixplore.me/api';
 
   static const List<String> departments = [
     'CSE',
