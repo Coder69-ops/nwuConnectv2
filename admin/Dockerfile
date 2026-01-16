@@ -8,7 +8,8 @@ RUN npm install
 
 COPY . .
 # Next.js build needs env vars at build time for NEXT_PUBLIC prefix
-COPY .env.local .env.production
+# We use a conditional copy to avoid failing in CI/CD where the file is ignored
+RUN if [ -f .env.local ]; then cp .env.local .env.production; else touch .env.production; fi
 RUN npm run build
 
 # Production stage
