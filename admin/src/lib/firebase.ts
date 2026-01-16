@@ -10,5 +10,8 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
-export const auth = getAuth(app);
+const app = getApps().length === 0 && firebaseConfig.apiKey !== 'placeholder' && firebaseConfig.apiKey
+    ? initializeApp(firebaseConfig)
+    : (getApps()[0] || null);
+
+export const auth = app ? getAuth(app) : null as any;
