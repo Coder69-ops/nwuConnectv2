@@ -43,7 +43,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd NWUC
+            if [ -d "nwuConnectv2" ]; then cd nwuConnectv2; elif [ -d "NWUC" ]; then cd NWUC; else echo "Repo folder not found"; exit 1; fi
             git pull origin main
             # Inject Docker Hub username into environment for docker-compose
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
