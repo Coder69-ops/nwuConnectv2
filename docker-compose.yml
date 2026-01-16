@@ -1,5 +1,6 @@
 services:
   backend:
+    image: ${DOCKERHUB_USERNAME:-local}/v2-backend:latest
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -12,6 +13,7 @@ services:
     restart: always
 
   admin:
+    image: ${DOCKERHUB_USERNAME:-local}/v2-admin:latest
     build:
       context: ./admin
       dockerfile: Dockerfile

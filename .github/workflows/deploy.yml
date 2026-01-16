@@ -1,0 +1,52 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Backend
+        uses: docker/build-push-action@v4
+        with:
+          context: ./server
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/v2-backend:latest
+          # Pass build args if needed
+
+      - name: Build and push Admin
+        uses: docker/build-push-action@v4
+        with:
+          context: ./admin
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/v2-admin:latest
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd NWUC
+            git pull origin main
+            # Inject Docker Hub username into environment for docker-compose
+            export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            docker-compose pull
+            docker-compose up -d --build
+            docker image prune -f
