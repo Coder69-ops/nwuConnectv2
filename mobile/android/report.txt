@@ -1,0 +1,123 @@
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+Variant: release
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+Variant: profile
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+
+> Task :firebase_auth:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+
+> Task :firebase_core:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+
+> Task :firebase_database:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+
+> Task :flutter_plugin_android_lifecycle:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+
+> Task :google_sign_in_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+
+> Task :image_picker_android:signingReport
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Avijit\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 90:6F:36:BE:7C:A8:52:CD:CE:1B:AC:7B:90:2F:9A:AC
+SHA1: CE:A4:D1:DD:2B:11:FC:3C:5B:03:42:B8:FE:AD:EC:56:54:BB:32:57
+SHA-256: 33:BE:86:87:E6:34:9A:F5:61:FD:9B:68:C2:77:7E:AE:81:37:B5:01:AE:4B:DA:7D:3E:86:84:53:6B:E8:E2:83
+Valid until: Thursday, October 7, 2055
+----------
+
+[Incubating] Problems report is available at: file:///C:/Users/Avijit/Desktop/Folders/NWUC/mobile/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.12/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1s
+11 actionable tasks: 7 executed, 4 up-to-date

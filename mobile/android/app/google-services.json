@@ -1,0 +1,40 @@
+{
+    "project_info": {
+        "project_number": "720429038510",
+        "firebase_url": "https://nwuconnect-1-default-rtdb.asia-southeast1.firebasedatabase.app",
+        "project_id": "nwuconnect-1",
+        "storage_bucket": "nwuconnect-1.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:720429038510:android:ba94c25f23637d8cdba63f",
+                "android_client_info": {
+                    "package_name": "com.nwuconnect"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "720429038510-tb6kkg3hi77aae4j8bhhqkhs9acu6oqo.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyC1BHCcOXc0wOITgCKMmKxKcHHpxWoSkuw"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "720429038510-tb6kkg3hi77aae4j8bhhqkhs9acu6oqo.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

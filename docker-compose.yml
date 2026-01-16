@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server/firebase-service-account.json:/app/firebase-service-account.json
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    restart: always
