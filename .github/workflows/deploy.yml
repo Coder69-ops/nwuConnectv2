@@ -47,6 +47,8 @@ jobs:
             git pull origin main
             # Inject Docker Hub username into environment for docker-compose
             export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            # Clean up old images/cache to free space
+            docker system prune -f
             docker compose pull
             docker compose up -d --build
-            docker image prune -f
+            docker image prune -a -f
