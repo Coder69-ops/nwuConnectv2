@@ -10,6 +10,12 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
+console.log("Firebase Config Initialization:", {
+    hasApiKey: !!firebaseConfig.apiKey,
+    apiKeySource: firebaseConfig.apiKey === 'placeholder' ? 'placeholder' : (firebaseConfig.apiKey ? 'provided' : 'missing'),
+    projectId: firebaseConfig.projectId
+});
+
 const app = getApps().length === 0 && firebaseConfig.apiKey !== 'placeholder' && firebaseConfig.apiKey
     ? initializeApp(firebaseConfig)
     : (getApps()[0] || null);
