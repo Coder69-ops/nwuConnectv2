@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../features/auth/providers/auth_provider.dart';
 
+import 'constants.dart';
+
 final apiClientProvider = Provider<ApiClient>((ref) {
   final auth = ref.watch(firebaseAuthProvider);
   return ApiClient(auth: auth);
@@ -16,7 +18,7 @@ class ApiClient {
   ApiClient({String? baseUrl, required FirebaseAuth auth})
       : _auth = auth,
         _dio = Dio(BaseOptions(
-          baseUrl: baseUrl ?? 'http://10.0.2.2:3000', // Default for Android Emulator
+          baseUrl: baseUrl ?? Constants.baseUrl,
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
         )) {
