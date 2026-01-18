@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,7 +6,6 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../providers/chat_provider.dart';
 import '../providers/presence_provider.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/cached_image.dart';
 import '../../notification/widgets/notification_button.dart';
@@ -17,13 +17,24 @@ class ChatListScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
 }
 
-class _ChatListScreenState extends ConsumerState<ChatListScreen> {
+class _ChatListScreenState extends ConsumerState<ChatListScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+  late AnimationController _fabAnimationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _fabAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _fabAnimationController.dispose();
     super.dispose();
   }
 
@@ -32,199 +43,232 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final conversationsAsync = ref.watch(chatConversationsProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Chats', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 24, letterSpacing: -0.5)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.camera_alt_rounded, color: AppColors.textPrimary),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.edit_note_rounded, color: AppColors.textPrimary, size: 28),
-            onPressed: () {},
-          ),
-          const NotificationButton(),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: Column(
-        children: [
-          // Messenger Style Search
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 5, 20, 15),
-            child: Container(
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(22),
+      backgroundColor: AppColors.background, // Light Background
+      body: conversationsAsync.when(
+        data: (conversations) {
+          final filtered = conversations.where((c) => 
+            c.otherUser.name.toLowerCase().contains(_searchQuery)
+          ).toList();
+
+          return CustomScrollView(
+            slivers: [
+              // Modern Sliver App Bar with Clean Glass Effect
+              _buildSliverAppBar(),
+              
+              // Search Bar (Sliver)
+              SliverToBoxAdapter(
+                 child: Padding(
+                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                   child: _buildSearchBar(),
+                 ),
               ),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
-                decoration: InputDecoration(
-                  hintText: 'Search',
-                  hintStyle: TextStyle(color: AppColors.textSecondary.withOpacity(0.5), fontSize: 16),
-                  prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary, size: 20),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+
+              // Active Now Section (Clean & Minimal)
+              if (conversations.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: _buildActiveNowSection(conversations),
                 ),
-              ),
-            ),
-          ),
-          
-          Expanded(
-            child: conversationsAsync.when(
-              data: (conversations) {
-                final filtered = conversations.where((c) => 
-                  c.otherUser.name.toLowerCase().contains(_searchQuery)
-                ).toList();
-
-                return CustomScrollView(
-                  slivers: [
-                    // Stories / Active Users Row
-                    SliverToBoxAdapter(
-                      child: _buildStoriesRow(conversations),
-                    ),
-                    
-                    const SliverToBoxAdapter(child: SizedBox(height: 10)),
-
-                    if (filtered.isEmpty)
-                      SliverFillRemaining(child: _buildEmptyState())
-                    else
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) => _buildConversationCard(context, filtered[index]),
-                          childCount: filtered.length,
-                        ),
-                      ),
-                  ],
-                );
-              },
-              loading: () => Skeletonizer(
-                enabled: true,
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  itemCount: 5,
-                  itemBuilder: (context, index) => _buildConversationCard(context, _mockConversation()),
-                ),
-              ),
-              error: (err, stack) => Center(child: Text('Error: $err')),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStoriesRow(List<Conversation> conversations) {
-    // Extract unique users from conversations for the "Active" row
-    final users = conversations.map((c) => c.otherUser).toList();
-
-    return Container(
-      height: 100,
-      margin: const EdgeInsets.only(top: 10),
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        itemCount: users.length + 1,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return _buildAddStoryItem();
-          }
-          final user = users[index - 1];
-          final presenceAsync = ref.watch(userPresenceProvider(user.id));
-          final isOnline = presenceAsync.value?.isOnline ?? false;
-
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Column(
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isOnline ? AppColors.accent : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: AppColors.surface,
-                        backgroundImage: user.photo.isNotEmpty ? NetworkImage(user.photo) : null,
-                        child: user.photo.isEmpty 
-                          ? Text(user.name[0], style: const TextStyle(fontWeight: FontWeight.bold)) 
-                          : null,
-                      ),
-                    ),
-                    if (isOnline)
-                      Positioned(
-                        right: 2,
-                        bottom: 2,
-                        child: Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                SizedBox(
-                  width: 70,
+              
+              // Section Title
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                   child: Text(
-                    user.name.split(' ')[0],
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                    "Recent",
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+
+              // Conversation Cards
+              if (filtered.isEmpty)
+                SliverFillRemaining(child: _buildEmptyState())
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) => _buildConversationCard(context, filtered[index]),
+                      childCount: filtered.length,
+                    ),
+                  ),
+                ),
+            ],
           );
         },
+        loading: () => _buildLoadingState(),
+        error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: AppColors.textSecondary))),
       ),
+      floatingActionButton: _buildFloatingActionButton(),
     );
   }
 
-  Widget _buildAddStoryItem() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        children: [
-          Container(
-            width: 66,
-            height: 66,
+  Widget _buildSliverAppBar() {
+    return SliverAppBar(
+      expandedHeight: 80, // Reduced height since search is separate
+      floating: true,
+      pinned: true,
+      backgroundColor: Colors.white.withOpacity(0.8), // Frosted glass look
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      flexibleSpace: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+             color: Colors.white.withOpacity(0.5),
+             padding: const EdgeInsets.symmetric(horizontal: 20),
+             alignment: Alignment.bottomLeft,
+             child: const Padding(
+               padding: EdgeInsets.only(bottom: 12),
+               child: Text(
+                  'Messages',
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 32,
+                    letterSpacing: -1,
+                  ),
+                ),
+             ),
+          ),
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: AppColors.surface,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.add, color: AppColors.textPrimary, size: 30),
+            child: const Icon(Icons.edit_note_rounded, color: AppColors.textPrimary, size: 22),
           ),
-          const SizedBox(height: 6),
-          const Text('Your Story', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-        ],
+          onPressed: () {},
+        ),
+        const NotificationButton(),
+        const SizedBox(width: 8),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      height: 46,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.primary.withOpacity(0.05)),
       ),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+        style: const TextStyle(color: AppColors.textPrimary),
+        decoration: InputDecoration(
+          hintText: 'Search chats...',
+          hintStyle: TextStyle(
+            color: AppColors.textSecondary.withOpacity(0.6),
+            fontSize: 15,
+          ),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: AppColors.textSecondary.withOpacity(0.6),
+            size: 22,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActiveNowSection(List<Conversation> conversations) {
+    if (conversations.isEmpty) return const SizedBox.shrink();
+    final users = conversations.map((c) => c.otherUser).toSet().take(10).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 90,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            scrollDirection: Axis.horizontal,
+            itemCount: users.length,
+            separatorBuilder: (ctx, i) => const SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final user = users[index];
+              final presenceAsync = ref.watch(userPresenceProvider(user.id));
+              final isOnline = presenceAsync.value?.isOnline ?? false;
+
+              return Column(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isOnline ? Colors.green : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(2),
+                        child: CircleAvatar(
+                          radius: 28,
+                          backgroundColor: AppColors.surface,
+                          backgroundImage: user.photo.isNotEmpty ? NetworkImage(user.photo) : null,
+                          child: user.photo.isEmpty 
+                            ? Text(user.name[0], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: AppColors.textPrimary)) 
+                            : null,
+                        ),
+                      ),
+                      if (isOnline)
+                        Positioned(
+                          right: 2,
+                          bottom: 2,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    user.name.split(' ').first,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: isOnline ? FontWeight.bold : FontWeight.normal,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        const Divider(height: 1, thickness: 0.5, color: Color(0xFFEEEEEE)), // Subtle divider
+        const SizedBox(height: 10),
+      ],
     );
   }
 
   Widget _buildConversationCard(BuildContext context, Conversation conversation) {
     final otherUser = conversation.otherUser;
     final presenceAsync = ref.watch(userPresenceProvider(otherUser.id));
+    final isOnline = presenceAsync.value?.isOnline ?? false;
 
-    return InkWell(
+    // Use a unique subtle styling 
+    return GestureDetector(
       onTap: () {
         context.push('/chat/details', extra: {
           'conversationId': conversation.id,
@@ -232,38 +276,39 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+             BoxShadow(
+              color: AppColors.primary.withOpacity(0.03),
+              offset: const Offset(0, 4),
+              blurRadius: 10,
+             ),
+          ],
+        ),
         child: Row(
           children: [
-            // Avatar with Gradient Border and Presence Dot
+            // Avatar
             Stack(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: AppColors.pinkGradient,
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                    child: CircleAvatar(
-                      radius: 28,
-                      backgroundColor: AppColors.surface,
-                      backgroundImage: otherUser.photo.isNotEmpty ? NetworkImage(otherUser.photo) : null,
-                      child: otherUser.photo.isEmpty 
-                        ? Text(otherUser.name[0], style: const TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)) 
-                        : null,
-                    ),
-                  ),
+                CircleAvatar(
+                  radius: 26,
+                  backgroundColor: AppColors.surface,
+                  backgroundImage: otherUser.photo.isNotEmpty ? NetworkImage(otherUser.photo) : null,
+                  child: otherUser.photo.isEmpty 
+                    ? Text(otherUser.name[0], style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 18)) 
+                    : null,
                 ),
-                if (presenceAsync.value?.isOnline ?? false)
+                if (isOnline)
                   Positioned(
-                    right: 4,
-                    bottom: 4,
+                    right: 0,
+                    bottom: 0,
                     child: Container(
-                      width: 14,
-                      height: 14,
+                      width: 13,
+                      height: 13,
                       decoration: BoxDecoration(
                         color: Colors.green,
                         shape: BoxShape.circle,
@@ -273,9 +318,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   ),
               ],
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             
-            // Text Content
+            // Content
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,30 +328,43 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        otherUser.name,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                      Flexible(
+                        child: Text(
+                          otherUser.name,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
                         timeago.format(conversation.lastMessageAt, locale: 'en_short'),
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary.withOpacity(0.7)),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary.withOpacity(0.8),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    conversation.lastMessage,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      fontWeight: conversation.lastMessage.isNotEmpty ? FontWeight.w400 : FontWeight.w300,
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          conversation.lastMessage,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                      // Optional unread badge can go here
+                    ],
                   ),
                 ],
               ),
@@ -322,14 +380,68 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.chat_bubble_outline_rounded, size: 64, color: AppColors.textSecondary.withOpacity(0.2)),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.chat_bubble_outline_rounded,
+              size: 50,
+              color: AppColors.textSecondary.withOpacity(0.5),
+            ),
+          ),
+          const SizedBox(height: 20),
           Text(
-            _searchQuery.isEmpty ? "No conversations yet" : "No results for '$_searchQuery'",
-            style: TextStyle(color: AppColors.textSecondary.withOpacity(0.5), fontSize: 16),
+            _searchQuery.isEmpty ? "No messages yet" : "No results for '$_searchQuery'",
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Start a conversation from Connect',
+            style: TextStyle(
+              color: AppColors.textSecondary.withOpacity(0.8),
+              fontSize: 14,
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Skeletonizer(
+      enabled: true,
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: SizedBox(height: 100)), // Fake header
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => _buildConversationCard(context, _mockConversation()),
+                childCount: 6,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton(
+      onPressed: () {},
+      backgroundColor: AppColors.textPrimary, // Dark black for contrast
+      foregroundColor: Colors.white,
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: const Icon(Icons.edit_rounded),
     );
   }
 

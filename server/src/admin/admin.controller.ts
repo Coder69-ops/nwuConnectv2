@@ -58,8 +58,22 @@ export class AdminController {
         return this.adminService.dismissReport(id);
     }
 
+    @Get('audit-logs')
+    getAuditLogs() {
+        return this.adminService.getAuditLogs();
+    }
+
+    @Get('dashboard-data')
+    async getDashboardData() {
+        const [growth, activity] = await Promise.all([
+            this.adminService.getUserGrowth(),
+            this.adminService.getDashboardActivity()
+        ]);
+        return { growth, activity };
+    }
+
     @Patch('broadcast')
-    sendBroadcast(@Body() body: { title: string, message: string }) {
-        return this.adminService.sendBroadcast(body.title, body.message);
+    sendBroadcast(@Body() body: { title: string, message: string, target?: string }) {
+        return this.adminService.sendBroadcast(body.title, body.message, body.target);
     }
 }

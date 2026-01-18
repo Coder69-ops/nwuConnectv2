@@ -41,7 +41,7 @@ export class User {
     };
 
     @Prop({ default: 'user' })
-    role: string; // 'user' | 'admin'
+    role: string; // 'user' | 'admin' | 'student' | 'faculty' | 'staff'
 
     @Prop()
     linkedinUrl: string;

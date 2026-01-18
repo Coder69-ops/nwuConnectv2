@@ -15,22 +15,44 @@ class ScaffoldWithNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentIndex = (navigationShell as StatefulNavigationShell).currentIndex;
     final primaryColor = Theme.of(context).primaryColor;
+    
+    // Connect screen is at index 1
+    final isConnectScreen = currentIndex == 1;
 
     return Scaffold(
       extendBody: true,
       body: navigationShell,
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(45, 0, 45, 24), // Adjusted margin for 5 items
+      bottomNavigationBar: AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOutCubic,
+        margin: isConnectScreen 
+            ? EdgeInsets.zero 
+            : const EdgeInsets.fromLTRB(45, 0, 45, 24),
+        height: isConnectScreen ? 80 : 60, // Taller when fixed to accommodate home indicator
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(isConnectScreen ? 0 : 30),
+            topRight: Radius.circular(isConnectScreen ? 0 : 30),
+            bottomLeft: Radius.circular(isConnectScreen ? 0 : 30),
+            bottomRight: Radius.circular(isConnectScreen ? 0 : 30),
+          ),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              height: 60, // Slightly taller for the central button
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOutCubic,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.95),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: Colors.white.withOpacity(0.15), width: 1),
+                color: Colors.black.withOpacity(isConnectScreen ? 0.85 : 0.95),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(isConnectScreen ? 0 : 30),
+                  bottom: Radius.circular(isConnectScreen ? 0 : 30),
+                ),
+                border: Border.all(
+                  color: isConnectScreen 
+                      ? Colors.white.withOpacity(0.1) 
+                      : Colors.white.withOpacity(0.15),
+                  width: 1,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.4),
@@ -39,41 +61,45 @@ class ScaffoldWithNavBar extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _NavBarItem(
-                    icon: Icons.grid_view_rounded,
-                    label: 'Feed',
-                    isSelected: currentIndex == 0,
-                    onTap: () => _onTap(context, 0),
-                    activeColor: primaryColor,
-                  ),
-                  _NavBarItem(
-                    icon: Icons.explore_rounded,
-                    label: 'Connect',
-                    isSelected: currentIndex == 1,
-                    onTap: () => _onTap(context, 1),
-                    activeColor: primaryColor,
-                  ),
-                  _CreateButton(
-                    onTap: () => context.push('/create-post'),
-                  ),
-                  _NavBarItem(
-                    icon: Icons.chat_bubble_rounded,
-                    label: 'Chat',
-                    isSelected: currentIndex == 2,
-                    onTap: () => _onTap(context, 2),
-                    activeColor: primaryColor,
-                  ),
-                  _NavBarItem(
-                    icon: Icons.person_rounded,
-                    label: 'Profile',
-                    isSelected: currentIndex == 3,
-                    onTap: () => _onTap(context, 3),
-                    activeColor: primaryColor,
-                  ),
-                ],
+              child: SafeArea( // Ensure content safe from home indicator in fixed mode
+                top: false,
+                bottom: isConnectScreen,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _NavBarItem(
+                      icon: Icons.grid_view_rounded,
+                      label: 'Feed',
+                      isSelected: currentIndex == 0,
+                      onTap: () => _onTap(context, 0),
+                      activeColor: primaryColor,
+                    ),
+                    _NavBarItem(
+                      icon: Icons.explore_rounded,
+                      label: 'Connect',
+                      isSelected: currentIndex == 1,
+                      onTap: () => _onTap(context, 1),
+                      activeColor: primaryColor,
+                    ),
+                    _CreateButton(
+                      onTap: () => context.push('/create-post'),
+                    ),
+                    _NavBarItem(
+                      icon: Icons.forum_rounded,
+                      label: 'Chat',
+                      isSelected: currentIndex == 2,
+                      onTap: () => _onTap(context, 2),
+                      activeColor: primaryColor,
+                    ),
+                    _NavBarItem(
+                      icon: Icons.person_rounded,
+                      label: 'Profile',
+                      isSelected: currentIndex == 3,
+                      onTap: () => _onTap(context, 3),
+                      activeColor: primaryColor,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -113,7 +139,7 @@ class _NavBarItem extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 400),
         curve: Curves.fastOutSlowIn,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8), // More compact padding
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white.withOpacity(0.15) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),

@@ -14,15 +14,24 @@ import { UserGrowthChart } from "@/components/dashboard/user-growth-chart";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 
 export default function DashboardPage() {
-    const { data: stats, isLoading } = useQuery({
+    const { data: stats, isLoading: statsLoading } = useQuery({
         queryKey: ["stats"],
         queryFn: async () => {
             const res = await api.get("/admin/stats");
             return res.data;
+        },
+        refetchInterval: 5000
+    });
+
+    const { data: dashboardData, isLoading: dataLoading } = useQuery({
+        queryKey: ["dashboard-data"],
+        queryFn: async () => {
+            const res = await api.get("/admin/dashboard-data");
+            return res.data;
         }
     });
 
-    if (isLoading) {
+    if (statsLoading || dataLoading) {
         return <div className="flex h-full items-center justify-center pt-20"><Loader2 className="animate-spin text-primary h-8 w-8" /></div>;
     }
 
@@ -88,8 +97,8 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <UserGrowthChart />
-                <RecentActivity />
+                <UserGrowthChart data={dashboardData?.growth || []} />
+                <RecentActivity data={dashboardData?.activity || []} />
             </div>
         </div>
     );
