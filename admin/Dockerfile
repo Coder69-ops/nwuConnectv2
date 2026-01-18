@@ -3,7 +3,12 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# --- THESE ARE THE MISSING LINES ---
+COPY package*.json ./
+RUN npm install
 
+COPY . .
+# -----------------------------------
 
 # We check for a local .env.local (present on EC2) to override the placeholders
 RUN if [ -f .env.local ]; then cp .env.local .env.production; else touch .env.production; fi
