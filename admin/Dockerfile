@@ -36,8 +36,10 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Prune dev dependencies before copying
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
+RUN npm prune --production
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./
