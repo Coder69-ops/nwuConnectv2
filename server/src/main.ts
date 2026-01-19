@@ -38,6 +38,8 @@ async function bootstrap() {
       'http://10.0.2.2:3000',  // Android Emulator
       'http://16.171.53.247:3001', // Production Admin Panel
       'http://16.171.53.247:3000', // Production Self
+      'https://api.nwuconnect.aixplore.me', // Secure Admin Panel
+      'https://api.nwuconnect.aixplore.me/api', // Secure API
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
