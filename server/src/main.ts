@@ -36,6 +36,8 @@ async function bootstrap() {
       'http://localhost:3001', // Admin Panel
       'http://localhost:3000', // Self
       'http://10.0.2.2:3000',  // Android Emulator
+      'http://16.171.53.247:3001', // Production Admin Panel
+      'http://16.171.53.247:3000', // Production Self
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
